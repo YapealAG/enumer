@@ -44,19 +44,35 @@ func (af *arrayFlags) Set(value string) error {
 }
 
 var (
-	typeNames       = flag.String("type", "", "comma-separated list of type names; must be set")
-	sql             = flag.Bool("sql", false, "if true, the Scanner and Valuer interface will be implemented.")
-	json            = flag.Bool("json", false, "if true, json marshaling methods will be generated. Default: false")
-	yaml            = flag.Bool("yaml", false, "if true, yaml marshaling methods will be generated. Default: false")
-	text            = flag.Bool("text", false, "if true, text marshaling methods will be generated. Default: false")
-	gqlgen          = flag.Bool("gqlgen", false, "if true, GraphQL marshaling methods for gqlgen will be generated. Default: false")
-	altValuesFunc   = flag.Bool("values", false, "if true, alternative string values method will be generated. Default: false")
+	typeNames = flag.String("type", "", "comma-separated list of type names; must be set")
+	sql       = flag.Bool("sql", false, "if true, the Scanner and Valuer interface will be implemented.")
+	json      = flag.Bool("json", false, "if true, json marshaling methods will be generated. Default: false")
+	yaml      = flag.Bool("yaml", false, "if true, yaml marshaling methods will be generated. Default: false")
+	text      = flag.Bool("text", false, "if true, text marshaling methods will be generated. Default: false")
+	gqlgen    = flag.Bool(
+		"gqlgen",
+		false,
+		"if true, GraphQL marshaling methods for gqlgen will be generated. Default: false",
+	)
+	altValuesFunc = flag.Bool(
+		"values",
+		false,
+		"if true, alternative string values method will be generated. Default: false",
+	)
 	output          = flag.String("output", "", "output file name; default srcdir/<type>_string.go")
 	transformMethod = flag.String("transform", "noop", "enum item name transformation method. Default: noop")
-	trimPrefix      = flag.String("trimprefix", "", "transform each item name by removing a prefix or comma separated list of prefixes. Default: \"\"")
-	addPrefix       = flag.String("addprefix", "", "transform each item name by adding a prefix. Default: \"\"")
-	linecomment     = flag.Bool("linecomment", false, "use line comment text as printed text when present")
-	typedErrors     = flag.Bool("typederrors", false, "if true, use typed errors for enum string conversion methods. Default: false")
+	trimPrefix      = flag.String(
+		"trimprefix",
+		"",
+		"transform each item name by removing a prefix or comma separated list of prefixes. Default: \"\"",
+	)
+	addPrefix   = flag.String("addprefix", "", "transform each item name by adding a prefix. Default: \"\"")
+	linecomment = flag.Bool("linecomment", false, "use line comment text as printed text when present")
+	typedErrors = flag.Bool(
+		"typederrors",
+		false,
+		"if true, use typed errors for enum string conversion methods. Default: false",
+	)
 )
 
 var comments arrayFlags
@@ -67,7 +83,10 @@ func init() {
 
 // Usage is a replacement usage function for the flags package.
 func Usage() {
-	_, _ = fmt.Fprintf(os.Stderr, "Enumer is a tool to generate Go code that adds useful methods to Go enums (constants with a specific type).\n")
+	_, _ = fmt.Fprintf(
+		os.Stderr,
+		"Enumer is a tool to generate Go code that adds useful methods to Go enums (constants with a specific type).\n",
+	)
 	_, _ = fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
 	_, _ = fmt.Fprintf(os.Stderr, "\tEnumer [flags] -type T [directory]\n")
 	_, _ = fmt.Fprintf(os.Stderr, "\tEnumer [flags] -type T files... # Must be a single package\n")
@@ -122,7 +141,7 @@ func main() {
 	g.Printf("import (\n")
 	if *typedErrors {
 		g.Printf("\t\"errors\"\n")
-		g.Printf("\t\"github.com/dmarkham/enumer/enumerrs\"\n")
+		g.Printf("\t\"github.com/YapealAG/enumer/enumerrs\"\n")
 	}
 	g.Printf("\t\"fmt\"\n")
 	g.Printf("\t\"strings\"\n")
@@ -140,7 +159,20 @@ func main() {
 
 	// Run generate for each type.
 	for _, typeName := range typs {
-		g.generate(typeName, *json, *yaml, *sql, *text, *gqlgen, *transformMethod, *trimPrefix, *addPrefix, *linecomment, *altValuesFunc, *typedErrors)
+		g.generate(
+			typeName,
+			*json,
+			*yaml,
+			*sql,
+			*text,
+			*gqlgen,
+			*transformMethod,
+			*trimPrefix,
+			*addPrefix,
+			*linecomment,
+			*altValuesFunc,
+			*typedErrors,
+		)
 	}
 
 	// Format the output.
@@ -418,9 +450,16 @@ func (g *Generator) prefixValueNames(values []Value, prefix string) {
 }
 
 // generate produces the String method for the named type.
-func (g *Generator) generate(typeName string,
+func (g *Generator) generate(
+	typeName string,
 	includeJSON, includeYAML, includeSQL, includeText, includeGQLGen bool,
-	transformMethod string, trimPrefix string, addPrefix string, lineComment bool, includeValuesMethod bool, useTypedErrors bool) {
+	transformMethod string,
+	trimPrefix string,
+	addPrefix string,
+	lineComment bool,
+	includeValuesMethod bool,
+	useTypedErrors bool,
+) {
 	values := make([]Value, 0, 100)
 	for _, file := range g.pkg.files {
 		file.lineComment = lineComment
@@ -696,7 +735,7 @@ func (g *Generator) declareIndexAndNameVar(run []Value, typeName string) {
 	g.Printf("var %s\n", index)
 	index, n = g.createLowerIndexAndNameDecl(run, typeName, "")
 	g.Printf("const %s\n", n)
-	//g.Printf("var %s\n", index)
+	// g.Printf("var %s\n", index)
 }
 
 // createIndexAndNameDecl returns the pair of declarations for the run. The caller will add "const" and "var".
